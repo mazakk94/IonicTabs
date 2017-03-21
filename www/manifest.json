@@ -7,5 +7,6 @@
     "src": "icon.png",
     "sizes": "512x512",
     "type": "image/png"
-  }]
+  }],
+    "content_security_policy": "READ_EXTERNAL_STORAGE"
 }
