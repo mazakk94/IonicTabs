@@ -31,8 +31,8 @@ adb kill-server
 #### install apk on device and emulated device
 adb install "PATH_TO_IONIC_PROJ\platforms\android\build\outputs\apk\android-debug.apk"
 
-### very important plugin
+#### very important plugin
 ionic plugin add https://github.com/b-alidra/-cordova-imagePickerEx.git --save
 
-### install built apk on device 
+#### install built apk on device 
 PATH_TO_SDK\Android\sdk\platform-tools\adb.exe install android-debug.apk
