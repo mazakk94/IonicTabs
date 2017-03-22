@@ -1,26 +1,29 @@
 # IonicTabs
 
-## PATH_TO_IONIC_PROJ >
-
-### build & run on Google Chrome
-ionic build && ionic serve
-
-### build & run on own Device
-ionic build android && ionic run android
-
-### build & run on own Device with plugins reset
-ionic state reset && cordova platform add android && ionic build android && ionic run android
-
-
-### ADB
-## PATH_TO_SDK\Android\sdk\platform-tools >
-adb devices
-
+## Configurations
 cordova plugin add:
   - cordova-plugin-contacts
   - cordova-plugin-android-permissions
   - cordova-plugin-compat
 
+## Installations & Builds
+
+### PATH_TO_IONIC_PROJ >
+
+#### build & run on Google Chrome
+ionic build && ionic serve
+
+#### build & run on own Device
+ionic build android && ionic run android
+
+#### build & run on own Device with plugins reset
+ionic state reset && cordova platform add android && ionic build android && ionic run android
+
+
+
+### ADB
+### PATH_TO_SDK\Android\sdk\platform-tools >
+adb devices
 
 #### when device seems to be offline (adb devices)
 adb kill-server
