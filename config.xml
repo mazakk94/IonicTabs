@@ -32,7 +32,6 @@
     <preference name="android-minSdkVersion" value="20"/>
     <preference name="android-targetSdkVersion" value="23"/>
     <config-file target="AndroidManifest.xml" parent="/*">
-      <uses-permission android:name="android.permission.READ_SMS"/>
       <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     </config-file>
   </platform>
