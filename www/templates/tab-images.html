@@ -5,13 +5,20 @@
       </ion-header-bar>
       <ion-content>
 
-        <button class="button button-full button-calm" ng-if="!isReadPermission" ng-click="requestReadPermission()">
+        <button class="button button-full button-calm" ng-if="!isReadPermission" ng-click="requestPermission('READ_EXTERNAL_STORAGE')">
           Get Image!
         </button>
 
         <button class="button button-full button-positive" ng-if="isReadPermission" ng-click="fetchImage()">
           Get Image!
         </button>
+
+        <button class="button button-full button-positive" ng-if="isReadPermission" ng-click="captureImage()">
+          Capture Photo!
+        </button>
+
+        <span>Width: {{myWidth}}</span>
+        <span>Height: {{myHeight}}</span>
 
         <a href="" ng-click="deleteImage()" ng-if="showImage &amp;&amp; collection.selectedImage !== ''">
           <ion-item class="item-icon-right">
@@ -20,7 +27,7 @@
             </div>
           </ion-item>
         </a>
-
+        <img id="myImage" ng-show="false"></img>
         <img ng-if="showImage" ng-src="{{collection.selectedImage}}" style="width:100%; height: auto;"/>
         <span>URI: {{collection.selectedImage}} </span>
 

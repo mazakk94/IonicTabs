@@ -29,7 +29,7 @@
   </feature>
   <plugin name="com.synconset.ImagePickerExt" spec="https://github.com/b-alidra/-cordova-imagePickerEx.git"/>
   <platform name="android">
-    <preference name="android-minSdkVersion" value="20"/>
+    <!-- <preference name="android-minSdkVersion" value="20"/> -->
     <preference name="android-targetSdkVersion" value="23"/>
     <config-file target="AndroidManifest.xml" parent="/*">
       <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>

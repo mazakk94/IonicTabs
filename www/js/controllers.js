@@ -24,7 +24,7 @@ app.controller('ChatDetailCtrl', function($scope, $stateParams, Chats) {
   $scope.chat = Chats.get($stateParams.chatId);
 });
 
-app.controller('ImagesCtrl', function($scope, $state, $cordovaImagePicker, $ionicPlatform) {
+app.controller('ImagesCtrl', function($scope, $state, $ionicPlatform, $cordovaImagePicker, $cordovaCamera) {
   $scope.collection = {
     selectedImage : ''
   };
@@ -32,43 +32,54 @@ app.controller('ImagesCtrl', function($scope, $state, $cordovaImagePicker, $ioni
   $scope.allPermissions = [];
   $scope.isReadPermission = false;
   $scope.showImage = false;
+  $scope.myWidth = window.screen.width * window.devicePixelRatio;;
+  $scope.myHeight = window.screen.height * window.devicePixelRatio;;
+
 
   $ionicPlatform.ready(function() {
 
-    $scope.requestReadPermission = function () {
-      console.log("PRZED WEJŚCIEM DO requestRuntimePermission");
+
+    $scope.requestPermission = function (permission) {
+      console.log("PRZED WEJŚCIEM DO requestPermission: " + permission);
+
+      if (permission == "READ_EXTERNAL_STORAGE") {
+        permissionConst = cordova.plugins.diagnostic.permission.READ_EXTERNAL_STORAGE;
+      // } else if (permission == "UPDATE_DEVICE_STATS") {
+        // permissionConst = cordova.plugins.diagnostic.permission.UPDATE_DEVICE_STATS;
+      }
+      console.log("permissionConst: " + permissionConst);
 
       cordova.plugins.diagnostic.requestRuntimePermission(function(status){
         switch(status){
           case cordova.plugins.diagnostic.runtimePermissionStatus.GRANTED:
-            console.log("Permission granted to use the camera");
+            console.log("Permission granted");
             $scope.isReadPermission = true;
             $state.go($state.current, {}, {reload: true});
             break;
           case cordova.plugins.diagnostic.runtimePermissionStatus.NOT_REQUESTED:
-            console.log("Permission to use the camera has not been requested yet");
+            console.log("Permission has not been requested yet");
             $scope.isReadPermission = false;
             $state.go($state.current, {}, {reload: true});
             break;
           case cordova.plugins.diagnostic.runtimePermissionStatus.DENIED:
-            console.log("Permission denied to use the camera - ask again?");
+            console.log("Permission denied - ask again?");
             $scope.isReadPermission = false;
             $state.go($state.current, {}, {reload: true});
             break;
           case cordova.plugins.diagnostic.runtimePermissionStatus.DENIED_ALWAYS:
-            console.log("Permission permanently denied to use the camera - guess we won't be using it then!");
+            console.log("Permission permanently denied - guess we won't be using it then!");
             $scope.isReadPermission = false;
             $state.go($state.current, {}, {reload: true});
             break;
         }
       }, function(error){
           console.error("The following error occurred: "+error);
-      }, cordova.plugins.diagnostic.permission.READ_EXTERNAL_STORAGE);
-
+      }, permissionConst);
     };
 
     $scope.init = function(){
-      $scope.requestReadPermission();
+      $scope.requestPermission("READ_EXTERNAL_STORAGE");
+      // $scope.requestPermission("UPDATE_DEVICE_STATS");
     };
 
     $scope.deleteImage = function() {
@@ -83,8 +94,8 @@ app.controller('ImagesCtrl', function($scope, $state, $cordovaImagePicker, $ioni
 
       var options = {
           maximumImagesCount: 1,
-          width: 640,
-          height: 480,
+          width: $scope.myWidth,
+          height: $scope.myHeight,
           quality: 100
       };
       $cordovaImagePicker.getPictures(options)
@@ -92,12 +103,49 @@ app.controller('ImagesCtrl', function($scope, $state, $cordovaImagePicker, $ioni
           for (var i = 0; i < results.length; i++) {
             $scope.collection.selectedImage = results[i];
             console.log('Image URI: ' + $scope.collection.selectedImage);
-            $scope.showImage = true;            
+            $scope.showImage = true;
           }
       }, function(error) {
-          console.log('Error: ' + JSON.stringify(error));
+          console.log('Get Image Error: ' + JSON.stringify(error));
       });
     };
+
+    $scope.captureImage = function() {
+      console.log('WITAM CAPTURE IMAGE');
+      document.addEventListener("deviceready", function () {
+
+          var options = {
+            quality: 100,
+            destinationType: Camera.DestinationType.DATA_URL,
+            sourceType: Camera.PictureSourceType.CAMERA,
+            encodingType: Camera.EncodingType.JPEG,
+            targetWidth: $scope.myWidth,
+            targetHeight: $scope.myHeight,
+            popoverOptions: CameraPopoverOptions,
+            saveToPhotoAlbum: false,
+          correctOrientation:true
+          };
+
+          $cordovaCamera.getPicture(options).then(function(imageData) {
+            console.log('IMAGE DATA: ' + imageData);
+
+            var image = document.getElementById('myImage');
+            console.log('IMAGE: ' + image);
+
+            image.src = "data:image/jpeg;base64," + imageData;
+            $scope.collection.selectedImage = image.src;
+            console.log('IMAGE URI: ' + $scope.collection.selectedImage);
+            $scope.showImage = true;
+
+          }, function(error) {
+            console.log('Capture Image Error: ' + JSON.stringify(error));
+          });
+          // 03-24 13:42:38.316: W/System.err(3078): java.lang.SecurityException: uid 10015 does not have android.permission.UPDATE_DEVICE_STATS.
+
+        }, false);
+        console.log('ŻEGNAM CAPTURE IMAGE');
+
+    }
 
     $scope.fetchImage = function() {
       //tu bedzie pytanko czy galeria czy foto
