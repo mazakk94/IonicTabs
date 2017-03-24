@@ -31,6 +31,7 @@ app.controller('ImagesCtrl', function($scope, $state, $cordovaImagePicker, $ioni
 
   $scope.allPermissions = [];
   $scope.isReadPermission = false;
+  $scope.showImage = false;
 
   $ionicPlatform.ready(function() {
 
@@ -70,6 +71,14 @@ app.controller('ImagesCtrl', function($scope, $state, $cordovaImagePicker, $ioni
       $scope.requestReadPermission();
     };
 
+    $scope.deleteImage = function() {
+      $scope.collection.selectedImage = '';
+      // $scope.collection.selectedImage.splice(0, 1);
+      $scope.showImage = false;
+      $state.go($state.current, {}, {reload: true});
+      console.log('Image deleted: ' + $scope.collection.selectedImage);
+    };
+
     $scope.getImage = function() {
 
       var options = {
@@ -78,12 +87,12 @@ app.controller('ImagesCtrl', function($scope, $state, $cordovaImagePicker, $ioni
           height: 480,
           quality: 100
       };
-
       $cordovaImagePicker.getPictures(options)
         .then(function (results) {
           for (var i = 0; i < results.length; i++) {
-            console.log('Image URI: ' + results[i]);
             $scope.collection.selectedImage = results[i];
+            console.log('Image URI: ' + $scope.collection.selectedImage);
+            $scope.showImage = true;            
           }
       }, function(error) {
           console.log('Error: ' + JSON.stringify(error));
