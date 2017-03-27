@@ -24,7 +24,7 @@ app.controller('ChatDetailCtrl', function($scope, $stateParams, Chats) {
   $scope.chat = Chats.get($stateParams.chatId);
 });
 
-app.controller('ImagesCtrl', function($scope, $state, $ionicPlatform, $cordovaImagePicker, $cordovaCamera) {
+app.controller('ImagesCtrl', function($scope, $state, $ionicPlatform, $ionicPopup, $cordovaImagePicker, $cordovaCamera) {
   $scope.collection = {
     selectedImage : ''
   };
@@ -32,20 +32,16 @@ app.controller('ImagesCtrl', function($scope, $state, $ionicPlatform, $cordovaIm
   $scope.allPermissions = [];
   $scope.isReadPermission = false;
   $scope.showImage = false;
-  $scope.myWidth = window.screen.width * window.devicePixelRatio;;
-  $scope.myHeight = window.screen.height * window.devicePixelRatio;;
-
+  $scope.myWidth = window.screen.width * window.devicePixelRatio;
+  $scope.myHeight = window.screen.height * window.devicePixelRatio;
 
   $ionicPlatform.ready(function() {
-
 
     $scope.requestPermission = function (permission) {
       console.log("PRZED WEJŚCIEM DO requestPermission: " + permission);
 
       if (permission == "READ_EXTERNAL_STORAGE") {
         permissionConst = cordova.plugins.diagnostic.permission.READ_EXTERNAL_STORAGE;
-      // } else if (permission == "UPDATE_DEVICE_STATS") {
-        // permissionConst = cordova.plugins.diagnostic.permission.UPDATE_DEVICE_STATS;
       }
       console.log("permissionConst: " + permissionConst);
 
@@ -96,7 +92,7 @@ app.controller('ImagesCtrl', function($scope, $state, $ionicPlatform, $cordovaIm
           maximumImagesCount: 1,
           width: $scope.myWidth,
           height: $scope.myHeight,
-          quality: 100
+          quality: 50
       };
       $cordovaImagePicker.getPictures(options)
         .then(function (results) {
@@ -140,16 +136,47 @@ app.controller('ImagesCtrl', function($scope, $state, $ionicPlatform, $cordovaIm
           }, function(error) {
             console.log('Capture Image Error: ' + JSON.stringify(error));
           });
-          // 03-24 13:42:38.316: W/System.err(3078): java.lang.SecurityException: uid 10015 does not have android.permission.UPDATE_DEVICE_STATS.
 
         }, false);
         console.log('ŻEGNAM CAPTURE IMAGE');
 
     }
 
+    $scope.showFetchImagePopup = function() {
+      $scope.imagePopupResponse = {};
+
+      var myPopup = $ionicPopup.show({
+        title: 'Get image from:',
+        scope: $scope,
+        buttons: [
+          {
+            text: 'Gallery',
+            type: 'button-calm',
+            onTap: function(e) {
+              $scope.imagePopupResponse = "gallery";
+            }
+          },
+          {
+            text: 'Camera',
+            type: 'button-positive',
+            onTap: function(e) {
+              $scope.imagePopupResponse = "camera";
+            }
+          }
+        ]
+      });
+
+      myPopup.then(function(res) {
+        $scope.fetchImage();
+      });
+     };
+
     $scope.fetchImage = function() {
-      //tu bedzie pytanko czy galeria czy foto
-      $scope.getImage();
+      if ($scope.imagePopupResponse === "gallery"){
+        $scope.getImage();
+      } else if ($scope.imagePopupResponse === "camera") {
+        $scope.captureImage();
+      }
     };
 
     $scope.init();
