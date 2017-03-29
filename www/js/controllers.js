@@ -1,6 +1,91 @@
 var app = angular.module('starter.controllers', []);
 
-app.controller('DashCtrl', function($scope) {});
+app.controller('DashCtrl', function($scope, $state, Chats) {
+
+  $scope.chats = Chats.all();
+  $scope.collection = {
+    selectedImage : '',
+    images : []
+  };
+  $scope.showImage = true;
+
+  $scope.nextImage = function(row, column) {
+    if ($scope.collection.images[row][column+1] !== undefined) {
+      console.log('NEXT IMAGE: [' + row + ', ' + (column+1) + ']' + $scope.collection.images[row][column+1]);
+      return $scope.collection.images[row][column+1];
+
+    } else if ($scope.collection.images[row][column+1] === undefined && $scope.collection.images[row+1] !== undefined && $scope.collection.images[row+1][0] !== undefined) {
+      console.log('NEXT IMAGE: [' + (row+1) + ', ' + 0 + ']' + $scope.collection.images[row+1][0]);
+
+      return $scope.collection.images[row+1][0];
+    } else {
+      return null;
+    }
+  };
+
+  $scope.deleteImage = function(row, column) {
+    $scope.collection.selectedImage = '';
+    images = $scope.collection.images;
+
+    console.log('Image delete WITAM, x, y: [' + row + ','  + column + ']');
+    // console.log('IMAGE v 1: ' + images[row][column]);
+    // console.log('NextIMAGE: ' + $scope.nextImage(row, column));
+
+
+    var loopCol = column;
+    for(var i = row; i < images.length; i++){
+      for(var j = loopCol; j < images[i].length; j++){
+        console.log('*********** ' + i + ', ' + j);
+        var next = $scope.nextImage(i, j);
+        if (next === null || next === undefined) {
+
+          console.log('OSTATNI: ' + i + ',' + j + ': ' + images[i][j]);
+          if (images[i][j] !== undefined){
+            console.log('USUWAM BIEŻĄCY');
+            images[i].splice(j, 1);
+          }
+
+        } else {
+          console.log('PODMIANKA PRZY: ' + i + ',' + j);
+          images[i][j] = next;
+        }
+      }
+      loopCol = 0;
+    }
+
+    //var column = $scope.collection.images.indexOf(image);
+    //$scope.collection.images.splice(column, 1)
+    //$scope.showImage = false;
+    $state.go($state.current, {}, {reload: true});
+    console.log('Image deleted: ' + $scope.collection.selectedImage);
+
+  };
+
+  $scope.pushToImages = function(image) {
+    console.log('pushToImages WITAM, image: ' + image);
+    var length = $scope.collection.images.length;
+    for(var i = 0; i < length; i++){
+      var three = $scope.collection.images[i];
+      if (three.length < 3){
+        three.push(image);
+        return;
+      }
+    }
+    console.log('Przed dodaniem nowej trójki');
+    $scope.collection.images[length] = [];
+    $scope.collection.images[length].push(image); //if every three is full create new and push image to it
+  };
+
+  $scope.init = function(){
+    var chats = Chats.all();
+    for(var i = 0; i < chats.length; i++){
+      $scope.pushToImages(chats[i].face);
+    }
+  };
+
+  $scope.init();
+
+});
 
 app.controller('ChatsCtrl', function($scope, Chats) {
   /*
@@ -26,7 +111,8 @@ app.controller('ChatDetailCtrl', function($scope, $stateParams, Chats) {
 
 app.controller('ImagesCtrl', function($scope, $state, $ionicPlatform, $ionicPopup, $cordovaImagePicker, $cordovaCamera) {
   $scope.collection = {
-    selectedImage : ''
+    selectedImage : '',
+    images : []
   };
 
   $scope.allPermissions = [];
@@ -37,13 +123,38 @@ app.controller('ImagesCtrl', function($scope, $state, $ionicPlatform, $ionicPopu
 
   $ionicPlatform.ready(function() {
 
+    $scope.prettyLogImages = function() {
+      console.log('prettyLogImages WITAM');
+      var length = $scope.collection.images.length;
+      for(var i=0; i < length; i++){
+        console.log('*******************' + i + ' ROW *******************');
+        var three = $scope.collection.images[i];
+        for(var j = 0; j < three.length; j++){
+          console.log('*******************' + j + ' COLUMN *******************');
+          console.log(three[j]);
+        }
+      }
+      console.log('******************* KONIEC *******************');
+    };
+
+    $scope.pushToImages = function(image) {
+      var length = $scope.collection.images.length;
+      for(var i=0; i < length; i++){
+        var three = $scope.collection.images[i];
+        if (three.length < 3){
+          three.push(image);
+          return;
+        }
+      }
+      $scope.collection.images[length] = [];
+      $scope.collection.images[length].push(image); //if every three is full create new and push image to it
+    };
+
     $scope.requestPermission = function (permission) {
-      console.log("PRZED WEJŚCIEM DO requestPermission: " + permission);
 
       if (permission == "READ_EXTERNAL_STORAGE") {
         permissionConst = cordova.plugins.diagnostic.permission.READ_EXTERNAL_STORAGE;
       }
-      console.log("permissionConst: " + permissionConst);
 
       cordova.plugins.diagnostic.requestRuntimePermission(function(status){
         switch(status){
@@ -75,41 +186,62 @@ app.controller('ImagesCtrl', function($scope, $state, $ionicPlatform, $ionicPopu
 
     $scope.init = function(){
       $scope.requestPermission("READ_EXTERNAL_STORAGE");
-      // $scope.requestPermission("UPDATE_DEVICE_STATS");
     };
 
-    $scope.deleteImage = function() {
+    $scope.nextImage = function(row, column) {
+      if ($scope.collection.images[row][column+1] !== undefined) {
+        return $scope.collection.images[row][column+1];
+      } else if ($scope.collection.images[row][column+1] === undefined && $scope.collection.images[row+1] !== undefined && $scope.collection.images[row+1][0] !== undefined) {
+        return $scope.collection.images[row+1][0];
+      } else {
+        return null;
+      }
+    };
+
+    $scope.deleteImage = function(row, column) {
       $scope.collection.selectedImage = '';
-      // $scope.collection.selectedImage.splice(0, 1);
-      $scope.showImage = false;
+      images = $scope.collection.images;
+
+      var loopCol = column;
+      for(var i = row; i < images.length; i++){
+        for(var j = loopCol; j < images[i].length; j++){
+          var next = $scope.nextImage(i, j);
+          if (next === null || next === undefined) {
+            if (images[i][j] !== undefined){
+              images[i].splice(j, 1);
+            }
+          } else {
+            images[i][j] = next;
+          }
+        }
+        loopCol = 0;
+      }
       $state.go($state.current, {}, {reload: true});
-      console.log('Image deleted: ' + $scope.collection.selectedImage);
     };
 
     $scope.getImage = function() {
-
       var options = {
-          maximumImagesCount: 1,
+          maximumImagesCount: 10,
           width: $scope.myWidth,
           height: $scope.myHeight,
           quality: 50
       };
+
       $cordovaImagePicker.getPictures(options)
         .then(function (results) {
           for (var i = 0; i < results.length; i++) {
             $scope.collection.selectedImage = results[i];
-            console.log('Image URI: ' + $scope.collection.selectedImage);
+            $scope.pushToImages(results[i]);
             $scope.showImage = true;
           }
       }, function(error) {
           console.log('Get Image Error: ' + JSON.stringify(error));
       });
+
     };
 
     $scope.captureImage = function() {
-      console.log('WITAM CAPTURE IMAGE');
       document.addEventListener("deviceready", function () {
-
           var options = {
             quality: 100,
             destinationType: Camera.DestinationType.DATA_URL,
@@ -119,27 +251,20 @@ app.controller('ImagesCtrl', function($scope, $state, $ionicPlatform, $ionicPopu
             targetHeight: $scope.myHeight,
             popoverOptions: CameraPopoverOptions,
             saveToPhotoAlbum: false,
-          correctOrientation:true
+            correctOrientation:true
           };
 
-          $cordovaCamera.getPicture(options).then(function(imageData) {
-            console.log('IMAGE DATA: ' + imageData);
-
-            var image = document.getElementById('myImage');
-            console.log('IMAGE: ' + image);
-
-            image.src = "data:image/jpeg;base64," + imageData;
-            $scope.collection.selectedImage = image.src;
-            console.log('IMAGE URI: ' + $scope.collection.selectedImage);
-            $scope.showImage = true;
-
+          $cordovaCamera.getPicture(options)
+            .then(function(imageData) {
+              var image = document.getElementById('myImage');
+              image.src = "data:image/jpeg;base64," + imageData;
+              $scope.collection.selectedImage = image.src;
+              $scope.pushToImages(image.src);
+              $scope.showImage = true;
           }, function(error) {
             console.log('Capture Image Error: ' + JSON.stringify(error));
           });
-
         }, false);
-        console.log('ŻEGNAM CAPTURE IMAGE');
-
     }
 
     $scope.showFetchImagePopup = function() {

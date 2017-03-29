@@ -3,25 +3,32 @@
       <ion-header-bar class="bar-stable">
         <h1 class="title">Image Picker Example</h1>
       </ion-header-bar>
-      <ion-content>
+      <ion-content class="padding">
 
-        <button class="button button-full button-dark" ng-if="!isReadPermission" ng-click="requestPermission('READ_EXTERNAL_STORAGE')">
-          Get Image!
-        </button>
+        <div class="row">
+          <button class="button button-full button-stable" ng-show="false" ng-click="prettyLogImages()">
+            Pretty log images!
+          </button>
+          <button class="button button-full button-dark" ng-if="!isReadPermission" ng-click="requestPermission('READ_EXTERNAL_STORAGE')">
+            Get Image!
+          </button>
+          <button class="button button-full button-positive" ng-if="isReadPermission" ng-click="showFetchImagePopup()">
+            Get Image!
+          </button>
+        </div>
 
-        <button class="button button-full button-positive" ng-if="isReadPermission" ng-click="showFetchImagePopup()">
-          Get Image!
-        </button>
+        <img id="myImage" ng-show="false"></img><!-- DO NOT DELETE! -->
 
-        <a href="" ng-click="deleteImage()" ng-if="showImage &amp;&amp; collection.selectedImage !== ''">
-          <ion-item class="item-icon-right">
-            <div class="icon">
-              <span class=" ion-trash-a"></span>
-            </div>
-          </ion-item>
-        </a>
-        <img id="myImage" ng-show="false"></img>
-        <img ng-if="showImage" ng-src="{{collection.selectedImage}}" style="width:100%; height: auto;"/>
+        <div class="row row-center" ng-repeat="(row, three) in collection.images">
+          <div class="col-33 col-center image-container" ng-repeat="(index, image) in three" ng-if="showImage">
+            <a href="" ng-click="deleteImage(row, index)">
+              <ion-item class="item-icon-right trash-icon">
+                <span class="icon ion-trash-a" style="right: 0px !important"></span>
+              </ion-item>
+            </a>
+            <img ng-src="{{image}}" class="image-centered" />
+          </div>
+        </div>
 
       </ion-content>
    </ion-pane>
