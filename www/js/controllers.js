@@ -109,7 +109,8 @@ app.controller('ChatDetailCtrl', function($scope, $stateParams, Chats) {
   $scope.chat = Chats.get($stateParams.chatId);
 });
 
-app.controller('ImagesCtrl', function($scope, $state, $ionicPlatform, $ionicPopup, $cordovaImagePicker, $cordovaCamera) {
+// app.controller('ImagesCtrl', function($scope, $state, $ionicPlatform, $ionicPopup, $cordovaImagePicker, $cordovaCamera) {
+app.controller('ImagesCtrl', function($scope, $state, $ionicPlatform) {
   $scope.collection = {
     selectedImage : '',
     images : []
@@ -185,7 +186,7 @@ app.controller('ImagesCtrl', function($scope, $state, $ionicPlatform, $ionicPopu
     };
 
     $scope.init = function(){
-      $scope.requestPermission("READ_EXTERNAL_STORAGE");
+      //$scope.requestPermission("READ_EXTERNAL_STORAGE");
     };
 
     $scope.nextImage = function(row, column) {
