@@ -14,6 +14,7 @@ cordova plugin add:
 ionic build && ionic serve
 
 #### build & run on own Device
+NEW: ionic cordova run android
 ionic build android && ionic run android
 
 #### build & run on own Device with plugins reset
